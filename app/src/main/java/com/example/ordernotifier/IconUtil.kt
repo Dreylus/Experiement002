@@ -7,35 +7,39 @@ import android.net.Uri
 object IconUtil {
     private const val SIZE = 256
 
-    /** Squircle-ish rounded square, center-cropped from [src] (or flat grey if null). */
-    fun squircle(src: Bitmap?): Bitmap {
+    /** Square center-crop of [src] (flat grey if null). The system/preview rounds it as needed. */
+    fun square(src: Bitmap?): Bitmap {
         val out = Bitmap.createBitmap(SIZE, SIZE, Bitmap.Config.ARGB_8888)
         val c = Canvas(out)
-        val paint = Paint(Paint.ANTI_ALIAS_FLAG)
-        val r = SIZE * 0.28f
-        val rect = RectF(0f, 0f, SIZE.toFloat(), SIZE.toFloat())
         if (src == null) {
-            paint.color = Color.rgb(0x9A, 0x9F, 0xA6)
-            c.drawRoundRect(rect, r, r, paint)
+            c.drawColor(Color.rgb(0x9A, 0x9F, 0xA6))
             return out
         }
-        c.drawRoundRect(rect, r, r, paint)
-        paint.xfermode = PorterDuffXfermode(PorterDuff.Mode.SRC_IN)
         val side = minOf(src.width, src.height)
         val crop = Rect((src.width - side) / 2, (src.height - side) / 2,
             (src.width + side) / 2, (src.height + side) / 2)
-        c.drawBitmap(src, crop, rect, paint)
+        c.drawBitmap(src, crop, Rect(0, 0, SIZE, SIZE), Paint(Paint.FILTER_BITMAP_FLAG))
         return out
     }
 
     fun load(settings: Settings): Bitmap {
         val f = settings.iconFile
         val src = if (f.exists()) BitmapFactory.decodeFile(f.path) else null
-        return squircle(src)
+        return square(src)
     }
 
-    fun import(ctx: Context, settings: Settings, uri: Uri) {
-        val src = ctx.contentResolver.openInputStream(uri)?.use { BitmapFactory.decodeStream(it) } ?: return
-        settings.iconFile.outputStream().use { squircle(src).compress(Bitmap.CompressFormat.PNG, 100, it) }
+    /** Copies the picked image into app storage. Returns false if it couldn't be read. */
+    fun import(ctx: Context, settings: Settings, uri: Uri): Boolean {
+        val resolver = ctx.contentResolver
+        val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+        resolver.openInputStream(uri)?.use { BitmapFactory.decodeStream(it, null, bounds) }
+        if (bounds.outWidth <= 0) return false
+        var sample = 1
+        while (minOf(bounds.outWidth, bounds.outHeight) / (sample * 2) >= SIZE) sample *= 2
+        val opts = BitmapFactory.Options().apply { inSampleSize = sample }
+        val src = resolver.openInputStream(uri)?.use { BitmapFactory.decodeStream(it, null, opts) }
+            ?: return false
+        settings.iconFile.outputStream().use { square(src).compress(Bitmap.CompressFormat.PNG, 100, it) }
+        return true
     }
 }

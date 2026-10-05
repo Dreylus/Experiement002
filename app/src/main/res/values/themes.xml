@@ -1,3 +1,28 @@
 <resources>
     <style name="Theme.App" parent="Theme.Material3.DayNight.NoActionBar" />
+
+    <style name="CircleImage">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">50%</item>
+    </style>
+
+    <style name="SquircleImage">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">28%</item>
+    </style>
+
+    <style name="SectionTitle">
+        <item name="android:textAppearance">?attr/textAppearanceTitleSmall</item>
+        <item name="android:textColor">?attr/colorPrimary</item>
+    </style>
+
+    <style name="FieldLabel">
+        <item name="android:textAppearance">?attr/textAppearanceBodyLarge</item>
+        <item name="android:textColor">?attr/colorOnSurface</item>
+    </style>
+
+    <style name="Hint">
+        <item name="android:textAppearance">?attr/textAppearanceBodySmall</item>
+        <item name="android:textColor">?attr/colorOnSurfaceVariant</item>
+    </style>
 </resources>

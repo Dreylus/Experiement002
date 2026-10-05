@@ -50,6 +50,19 @@ class Settings(private val ctx: Context) {
         get() = p.getInt("nextOrder", 1001)
         set(v) = p.edit().putInt("nextOrder", v).apply()
 
+    /** Chat-style notification: the picture shows once, on the left. */
+    var singlePicture: Boolean
+        get() = p.getBoolean("singlePicture", true)
+        set(v) = p.edit().putBoolean("singlePicture", v).apply()
+
+    var sound: Boolean
+        get() = p.getBoolean("sound", true)
+        set(v) = p.edit().putBoolean("sound", v).apply()
+
+    var keepAwake: Boolean
+        get() = p.getBoolean("keepAwake", false)
+        set(v) = p.edit().putBoolean("keepAwake", v).apply()
+
     val iconFile: File get() = File(ctx.filesDir, "store_icon.png")
 
     companion object {
