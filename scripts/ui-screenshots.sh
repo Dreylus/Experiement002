@@ -47,6 +47,7 @@ adb shell am broadcast -a com.android.systemui.demo -e command clock -e hhmm 120
 adb shell am broadcast -a com.android.systemui.demo -e command battery -e level 100 -e plugged false >/dev/null
 adb shell am broadcast -a com.android.systemui.demo -e command network -e wifi show -e level 4 >/dev/null
 
+pip install --quiet pillow >/dev/null 2>&1 || true
 adb install -r -g "$APK"
 adb logcat -c
 

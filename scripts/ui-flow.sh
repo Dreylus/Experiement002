@@ -40,14 +40,34 @@ sleep 1
 open_tab alerts
 tap_id rowSinglePicture
 
-# Pop-up banner over the home screen: the order is posted 5 s after the tap, so the
-# screenshot is timed from the tap (pressing Home can take a few seconds on its own).
+# Pop-up banner over the home screen. The order is posted 5 s after the tap; grab a burst of
+# frames around then and keep the one whose top part differs most from the plain home screen.
 open_tab home
 tap_id testDelayed
 t0=$(date +%s%N)
 adb shell input keyevent KEYCODE_HOME
-while [ $(( ($(date +%s%N) - t0) / 1000000 )) -lt 5700 ]; do sleep 0.1; done
-shot 07_heads_up 0
+while [ $(( ($(date +%s%N) - t0) / 1000000 )) -lt 4200 ]; do sleep 0.05; done
+adb exec-out screencap -p > /tmp/hu_ref.png
+for i in $(seq 0 11); do
+  while [ $(( ($(date +%s%N) - t0) / 1000000 )) -lt $((4800 + i * 450)) ]; do sleep 0.05; done
+  adb exec-out screencap -p > "/tmp/hu_$i.png"
+done
+python3 - "$OUT/07_heads_up.png" <<'PY'
+import glob, shutil, sys
+from PIL import Image, ImageChops
+ref = Image.open('/tmp/hu_ref.png').convert('L')
+box = (0, 0, ref.width, ref.height // 5)
+def diff(f):
+    im = Image.open(f).convert('L')
+    h = ImageChops.difference(ref.crop(box), im.crop(box)).histogram()
+    return sum(i * n for i, n in enumerate(h))
+frames = sorted(glob.glob('/tmp/hu_*.png'))
+frames = [f for f in frames if not f.endswith('ref.png')]
+best = max(frames, key=diff)
+print('heads-up frame:', best, diff(best))
+shutil.copy(best, sys.argv[1])
+PY
+echo "screenshot: 07_heads_up"
 
 open_tab home
 tap_id testNow
