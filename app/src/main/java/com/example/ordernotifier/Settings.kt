@@ -63,6 +63,17 @@ class Settings(private val ctx: Context) {
         get() = p.getBoolean("keepAwake", false)
         set(v) = p.edit().putBoolean("keepAwake", v).apply()
 
+    /** Play the user's own audio file for each order notification. */
+    var customSoundOn: Boolean
+        get() = p.getBoolean("customSoundOn", false)
+        set(v) = p.edit().putBoolean("customSoundOn", v).apply()
+
+    var soundName: String
+        get() = p.getString("soundName", "") ?: ""
+        set(v) = p.edit().putString("soundName", v).apply()
+
+    val soundFile: File get() = File(ctx.filesDir, "custom_sound")
+
     val iconFile: File get() = File(ctx.filesDir, "store_icon.png")
 
     companion object {

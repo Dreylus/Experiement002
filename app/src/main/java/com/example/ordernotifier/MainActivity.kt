@@ -61,6 +61,10 @@ class MainActivity : AppCompatActivity() {
     private val avatarSwitch by lazy { findViewById<MaterialSwitch>(R.id.avatarSwitch) }
     private val soundSwitch by lazy { findViewById<MaterialSwitch>(R.id.soundSwitch) }
     private val awakeSwitch by lazy { findViewById<MaterialSwitch>(R.id.awakeSwitch) }
+    private val customSoundSwitch by lazy { findViewById<MaterialSwitch>(R.id.customSoundSwitch) }
+    private val soundFileName by lazy { findViewById<TextView>(R.id.soundFileName) }
+    private val previewSound by lazy { findViewById<Button>(R.id.previewSound) }
+    private val removeSound by lazy { findViewById<Button>(R.id.removeSound) }
     private val diagText by lazy { findViewById<TextView>(R.id.diagText) }
     private val fixSettings by lazy { findViewById<Button>(R.id.fixSettings) }
 
@@ -68,6 +72,20 @@ class MainActivity : AppCompatActivity() {
         if (uri != null) {
             if (IconUtil.import(this, s, uri)) refreshPictures() else toast("Couldn't read that image")
         }
+    }
+
+    private val pickAudio = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+        if (uri != null) {
+            val error = NotificationSound.import(this, s, uri)
+            if (error != null) toast(error)
+        }
+        // Switch was flipped on but no usable file was chosen: switch it back off.
+        if (!NotificationSound.hasFile(s) && s.customSoundOn) {
+            s.customSoundOn = false
+            binding = true; customSoundSwitch.isChecked = false; binding = false
+        }
+        refreshSound()
+        refreshDiagnostics()
     }
 
     private val askNotifPermission =
@@ -127,6 +145,7 @@ class MainActivity : AppCompatActivity() {
         avatarSwitch.isChecked = s.singlePicture
         soundSwitch.isChecked = s.sound
         awakeSwitch.isChecked = s.keepAwake
+        customSoundSwitch.isChecked = s.customSoundOn
 
         gapSlider.setLabelFormatter { v -> fmtSec(v.toInt()) }
         burstChanceSlider.setLabelFormatter { v -> "${v.toInt()}%" }
@@ -204,6 +223,26 @@ class MainActivity : AppCompatActivity() {
             if (s.enabled) SimulatorService.start(this) // re-applies the wake lock
         }
 
+        customSoundSwitch.setOnCheckedChangeListener { _, on ->
+            if (binding) return@setOnCheckedChangeListener
+            s.customSoundOn = on
+            if (on && !NotificationSound.hasFile(s)) pickAudio.launch("audio/*")
+            refreshSound()
+            refreshDiagnostics()
+        }
+        findViewById<Button>(R.id.chooseSound).setOnClickListener { pickAudio.launch("audio/*") }
+        previewSound.setOnClickListener {
+            if (!NotificationSound.play(this, s, ignoreToggle = true)) {
+                toast(if (NotificationSound.dndActive(this)) "Do Not Disturb is on - sound is silenced" else "Choose a sound file first")
+            }
+        }
+        removeSound.setOnClickListener {
+            NotificationSound.remove(s)
+            binding = true; customSoundSwitch.isChecked = false; binding = false
+            refreshSound()
+            refreshDiagnostics()
+        }
+
         findViewById<Button>(R.id.testNow).setOnClickListener { sendTest() }
         findViewById<Button>(R.id.testDelayed).setOnClickListener {
             if (!OrderNotifications.canPost(this)) { toast("Allow notifications first"); return@setOnClickListener }
@@ -227,7 +266,17 @@ class MainActivity : AppCompatActivity() {
         refreshPictures()
         refreshLabels()
         refreshStatus()
+        refreshSound()
         refreshDiagnostics()
+    }
+
+    private fun refreshSound() {
+        val has = NotificationSound.hasFile(s)
+        soundFileName.text = if (has) "\uD83C\uDFB5 ${s.soundName.ifBlank { "Custom sound" }}" else "No file chosen yet"
+        previewSound.isEnabled = has
+        removeSound.isEnabled = has
+        // While the custom sound is active it replaces the system sound.
+        soundSwitch.isEnabled = !NotificationSound.isActive(s)
     }
 
     private fun refreshPictures() {
@@ -291,8 +340,8 @@ class MainActivity : AppCompatActivity() {
                 problems += "This notification channel isn't set to \"Alerting / pop on screen\"."
             }
         }
-        if (nm.currentInterruptionFilter != NotificationManager.INTERRUPTION_FILTER_ALL) {
-            problems += "Do Not Disturb or a Focus mode is on, which hides pop-up banners."
+        if (NotificationSound.dndActive(this)) {
+            problems += "Do Not Disturb or a Focus mode is on, which hides pop-up banners and silences your custom sound."
         }
         if (problems.isEmpty()) {
             diagText.text = "✓ Pop-up banners are allowed. They appear at the top of the screen " +

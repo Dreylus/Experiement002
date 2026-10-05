@@ -24,7 +24,9 @@ object OrderNotifications {
     const val CHANNEL_SERVICE = "service"
 
     /** Both order channels are HIGH importance so Android pops them up as a banner. */
-    fun orderChannelId(s: Settings) = if (s.sound) CHANNEL_ALERT else CHANNEL_QUIET
+    fun orderChannelId(s: Settings) =
+        // With a custom sound we play the audio ourselves, so the channel itself stays silent.
+        if (s.sound && !NotificationSound.isActive(s)) CHANNEL_ALERT else CHANNEL_QUIET
 
     fun createChannels(ctx: Context) {
         val nm = ctx.getSystemService(NotificationManager::class.java)
@@ -106,5 +108,6 @@ object OrderNotifications {
         }
 
         NotificationManagerCompat.from(ctx).notify("order", number, b.build())
+        NotificationSound.play(ctx, s)
     }
 }
