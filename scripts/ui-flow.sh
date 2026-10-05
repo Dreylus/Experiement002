@@ -40,11 +40,14 @@ sleep 1
 open_tab alerts
 tap_id rowSinglePicture
 
-# Pop-up banner over the home screen.
+# Pop-up banner over the home screen: the order is posted 5 s after the tap, so the
+# screenshot is timed from the tap (pressing Home can take a few seconds on its own).
 open_tab home
 tap_id testDelayed
+t0=$(date +%s%N)
 adb shell input keyevent KEYCODE_HOME
-shot 07_heads_up 5.8
+while [ $(( ($(date +%s%N) - t0) / 1000000 )) -lt 5700 ]; do sleep 0.1; done
+shot 07_heads_up 0
 
 open_tab home
 tap_id testNow
