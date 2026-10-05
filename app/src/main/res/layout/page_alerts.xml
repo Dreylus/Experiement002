@@ -114,6 +114,12 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
+        <include
+            android:id="@+id/rowHideBadge"
+            layout="@layout/row_switch"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
         <TextView
             style="@style/SectionHeader"
             android:layout_width="match_parent"

@@ -75,6 +75,11 @@ class Settings(private val ctx: Context) {
         get() = p.getBoolean("singlePicture", true)
         set(v) = p.edit().putBoolean("singlePicture", v).apply()
 
+    /** Hide the app's own icon (the little badge) on order notifications. */
+    var hideBadge: Boolean
+        get() = p.getBoolean("hideBadge", true)
+        set(v) = p.edit().putBoolean("hideBadge", v).apply()
+
     var sound: Boolean
         get() = p.getBoolean("sound", true)
         set(v) = p.edit().putBoolean("sound", v).apply()

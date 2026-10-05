@@ -87,7 +87,8 @@ object OrderNotifications {
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )
         val b = NotificationCompat.Builder(ctx, orderChannelId(s))
-            .setSmallIcon(R.drawable.ic_notification)
+            // Android always draws the small icon as a badge; a transparent one leaves nothing to see.
+            .setSmallIcon(if (s.hideBadge) R.drawable.ic_blank else R.drawable.ic_notification)
             .setContentTitle(title)
             .setContentText(text)
             .setSubText(s.storeName)
