@@ -28,7 +28,8 @@ PY
   if [ -n "$xy" ]; then adb shell input tap $xy; echo "tapped $1 at $xy"; else echo "NOT FOUND: $1"; fi
 }
 
-scroll_down() { adb shell input swipe 540 1800 540 600 400; }
+# Swipes start mid-screen so they never begin on a slider (a touch there would move it).
+scroll_down() { adb shell input swipe 540 1150 540 250 400; sleep 0.5; }
 scroll_up() { adb shell input swipe 540 600 540 1800 300; adb shell input swipe 540 600 540 1800 300; }
 
 # Tidy status bar for nicer screenshots.

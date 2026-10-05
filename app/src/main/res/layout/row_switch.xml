@@ -52,5 +52,6 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:clickable="false"
-        android:focusable="false" />
+        android:focusable="false"
+        android:saveEnabled="false" />
 </LinearLayout>

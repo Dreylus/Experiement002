@@ -14,32 +14,33 @@
         <!-- Profile header: picture with a "live" ring, like a creator profile. -->
         <FrameLayout
             android:layout_width="120dp"
-            android:layout_height="120dp"
+            android:layout_height="124dp"
             android:layout_gravity="center_horizontal"
-            android:layout_marginTop="8dp">
+            android:layout_marginTop="4dp">
 
             <View
                 android:id="@+id/avatarRing"
                 android:layout_width="112dp"
                 android:layout_height="112dp"
-                android:layout_gravity="top|center_horizontal" />
+                android:layout_gravity="top|center_horizontal"
+                android:layout_marginTop="4dp" />
 
             <View
                 android:layout_width="104dp"
                 android:layout_height="104dp"
                 android:layout_gravity="top|center_horizontal"
-                android:layout_marginTop="4dp"
-                android:background="@drawable/bg_circle_surface" />
+                android:layout_marginTop="8dp"
+                android:background="@drawable/bg_avatar_gap" />
 
             <com.google.android.material.imageview.ShapeableImageView
                 android:id="@+id/homeAvatar"
                 android:layout_width="96dp"
                 android:layout_height="96dp"
                 android:layout_gravity="top|center_horizontal"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="12dp"
                 android:contentDescription="Notification picture. Tap to change it."
                 android:scaleType="centerCrop"
-                app:shapeAppearanceOverlay="@style/CircleImage" />
+                app:shapeAppearanceOverlay="@style/SquircleImage" />
 
             <TextView
                 android:id="@+id/liveBadge"

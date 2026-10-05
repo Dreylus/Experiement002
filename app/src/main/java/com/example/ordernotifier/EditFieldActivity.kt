@@ -6,6 +6,7 @@ import android.text.Editable
 import android.text.InputFilter
 import android.text.InputType
 import android.text.TextWatcher
+import android.view.KeyEvent
 import android.view.inputmethod.EditorInfo
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
@@ -80,8 +81,9 @@ class EditFieldActivity : AppCompatActivity() {
                 updatePreview()
             }
         })
-        input.setOnEditorActionListener { _, actionId, _ ->
-            if (actionId == EditorInfo.IME_ACTION_DONE) {
+        input.setOnEditorActionListener { _, actionId, event ->
+            val enterKey = event?.keyCode == KeyEvent.KEYCODE_ENTER && event.action == KeyEvent.ACTION_DOWN
+            if (actionId == EditorInfo.IME_ACTION_DONE || enterKey) {
                 save()
                 true
             } else {
@@ -116,8 +118,8 @@ class EditFieldActivity : AppCompatActivity() {
         val number = if (field == EditField.NEXT_ORDER) t.toIntOrNull() ?: s.nextOrder else s.nextOrder
         val body = OrderNotifications.formatBody(currency, Preview.sampleCents(s), Preview.sampleItems(s), from)
         Preview.bind(
-            findViewById(R.id.editPreview), icon,
-            "${getString(R.string.app_name)} • $store • now", prefix + number, body
+            findViewById(R.id.editPreview), icon, getString(R.string.app_name), store,
+            prefix + number, body, s.singlePicture
         )
     }
 

@@ -26,10 +26,10 @@ object Timing {
 
     // Every gap value here must be one of GAP_STEPS and every chance a multiple of 5.
     val PRESETS = listOf(
-        Preset("😌 Chill", 120, 600, 10, 2),
-        Preset("📦 Steady", 30, 180, 20, 3),
-        Preset("🔥 Busy", 10, 60, 35, 4),
-        Preset("🚀 Viral", 2, 20, 60, 6),
+        Preset("\uD83D\uDE0C Chill", 120, 600, 10, 2),
+        Preset("\uD83D\uDCE6 Steady", 20, 120, 25, 4), // the defaults
+        Preset("\uD83D\uDD25 Busy", 10, 60, 40, 5),
+        Preset("\uD83D\uDE80 Viral", 2, 20, 60, 6),
     )
 
     /** An order at [atSec] seconds from now; [stack] is 0 for a normal order, 1..n for burst extras. */

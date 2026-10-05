@@ -7,17 +7,34 @@ import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.view.WindowCompat
+import androidx.core.view.isVisible
 import com.google.android.material.color.MaterialColors
 import com.google.android.material.R as MR
 
-/** Fills a view_notification_preview card. */
+/** Fills a view_notification_preview card so it matches what Android really shows. */
 object Preview {
     fun sampleCents(s: Settings): Long = Math.round((s.minPrice + s.maxPrice) / 2.0 * 100)
     fun sampleItems(s: Settings) = s.maxItems.coerceIn(1, 2)
 
-    fun bind(card: View, icon: Bitmap, header: String, title: String, body: String) {
-        card.findViewById<ImageView>(R.id.pvIcon).setImageBitmap(icon)
-        card.findViewById<TextView>(R.id.pvHeader).text = header
+    /**
+     * [chatStyle]: picture on the left and "Store • App • now" on top (conversation style).
+     * Otherwise the classic layout: app icon on the left, "App • Store • now", picture on the right.
+     */
+    fun bind(
+        card: View, picture: Bitmap, appName: String, storeName: String,
+        title: String, body: String, chatStyle: Boolean,
+    ) {
+        card.findViewById<ImageView>(R.id.pvIcon).apply {
+            setImageBitmap(picture)
+            isVisible = chatStyle
+        }
+        card.findViewById<View>(R.id.pvAppIcon).isVisible = !chatStyle
+        card.findViewById<ImageView>(R.id.pvLarge).apply {
+            setImageBitmap(picture)
+            isVisible = !chatStyle
+        }
+        card.findViewById<TextView>(R.id.pvHeader).text =
+            if (chatStyle) "$storeName \u2022 $appName \u2022 now" else "$appName \u2022 $storeName \u2022 now"
         card.findViewById<TextView>(R.id.pvTitle).text = title
         card.findViewById<TextView>(R.id.pvBody).text = body
     }

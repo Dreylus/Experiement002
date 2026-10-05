@@ -2,6 +2,7 @@ package com.example.ordernotifier
 
 import android.Manifest
 import android.animation.ObjectAnimator
+import android.animation.PropertyValuesHolder
 import android.animation.ValueAnimator
 import android.app.NotificationManager
 import android.content.Intent
@@ -17,7 +18,7 @@ import android.os.Handler
 import android.os.Looper
 import android.view.HapticFeedbackConstants
 import android.view.View
-import android.view.animation.LinearInterpolator
+import android.view.animation.AccelerateDecelerateInterpolator
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
@@ -355,14 +356,16 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    /** Gradient "live" ring when running, a thin outline when paused. */
+    /** Gradient "live" ring when running (it gently pulses), a thin outline when paused. */
     private fun ringDrawable(on: Boolean): Drawable {
         val primary = color(MR.attr.colorPrimary)
         val tertiary = color(MR.attr.colorTertiary)
         val outline = color(MR.attr.colorOutlineVariant)
         val stroke = dp(2)
         val ring = GradientDrawable()
-        ring.shape = GradientDrawable.OVAL
+        ring.shape = GradientDrawable.RECTANGLE
+        // Same squircle as the 96dp picture, 8dp further out.
+        ring.cornerRadius = (96 * IconUtil.CORNER + 8) * resources.displayMetrics.density
         if (on) {
             ring.gradientType = GradientDrawable.SWEEP_GRADIENT
             ring.colors = intArrayOf(primary, tertiary, primary)
@@ -375,10 +378,15 @@ class MainActivity : AppCompatActivity() {
 
     private fun startRing() {
         if (ringAnimator != null) return
-        ringAnimator = ObjectAnimator.ofFloat(avatarRing, View.ROTATION, 0f, 360f).apply {
-            duration = 4000
+        ringAnimator = ObjectAnimator.ofPropertyValuesHolder(
+            avatarRing,
+            PropertyValuesHolder.ofFloat(View.SCALE_X, 1f, 1.06f),
+            PropertyValuesHolder.ofFloat(View.SCALE_Y, 1f, 1.06f),
+        ).apply {
+            duration = 900
             repeatCount = ValueAnimator.INFINITE
-            interpolator = LinearInterpolator()
+            repeatMode = ValueAnimator.REVERSE
+            interpolator = AccelerateDecelerateInterpolator()
             start()
         }
     }
@@ -386,7 +394,8 @@ class MainActivity : AppCompatActivity() {
     private fun stopRing() {
         ringAnimator?.cancel()
         ringAnimator = null
-        avatarRing.rotation = 0f
+        avatarRing.scaleX = 1f
+        avatarRing.scaleY = 1f
     }
 
     private fun confirmResetStats() {
@@ -484,7 +493,7 @@ class MainActivity : AppCompatActivity() {
     private fun refreshPreviews() {
         val title = s.titlePrefix + s.nextOrder
         val body = OrderNotifications.formatBody(s.currency, Preview.sampleCents(s), Preview.sampleItems(s), s.fromText)
-        Preview.bind(customPreview, icon(), "${getString(R.string.app_name)} • ${s.storeName} • now", title, body)
+        Preview.bind(customPreview, icon(), getString(R.string.app_name), s.storeName, title, body, s.singlePicture)
     }
 
     private fun showPictureSheet() {
@@ -652,7 +661,10 @@ class MainActivity : AppCompatActivity() {
             s.sound = on
             refreshAlerts()
         }
-        switchRow(R.id.rowSinglePicture, R.drawable.ic_chat, "One picture only") { on -> s.singlePicture = on }
+        switchRow(R.id.rowSinglePicture, R.drawable.ic_chat, "One picture only") { on ->
+            s.singlePicture = on
+            refreshPreviews()
+        }
         switchRow(R.id.rowKeepAwake, R.drawable.ic_battery, "Keep going with screen off") { on ->
             s.keepAwake = on
             if (s.enabled) SimulatorService.start(this) // re-applies the wake lock
