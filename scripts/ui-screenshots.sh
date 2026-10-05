@@ -40,12 +40,15 @@ PY
 scroll_down() { adb shell input swipe 540 1150 540 250 400; sleep 0.5; }
 scroll_up() { adb shell input swipe 540 600 540 1800 300; adb shell input swipe 540 600 540 1800 300; }
 
-# Tidy status bar for nicer screenshots.
-adb shell settings put global sysui_demo_allowed 1
-adb shell am broadcast -a com.android.systemui.demo -e command enter >/dev/null
-adb shell am broadcast -a com.android.systemui.demo -e command clock -e hhmm 1200 >/dev/null
-adb shell am broadcast -a com.android.systemui.demo -e command battery -e level 100 -e plugged false >/dev/null
-adb shell am broadcast -a com.android.systemui.demo -e command network -e wifi show -e level 4 >/dev/null
+# Tidy status bar for nicer screenshots (re-applied after dark/light switches).
+demo_bar() {
+  adb shell settings put global sysui_demo_allowed 1
+  adb shell am broadcast -a com.android.systemui.demo -e command enter >/dev/null
+  adb shell am broadcast -a com.android.systemui.demo -e command clock -e hhmm 1200 >/dev/null
+  adb shell am broadcast -a com.android.systemui.demo -e command battery -e level 100 -e plugged false >/dev/null
+  adb shell am broadcast -a com.android.systemui.demo -e command network -e wifi show -e level 4 >/dev/null
+}
+demo_bar
 
 pip install --quiet pillow >/dev/null 2>&1 || true
 adb install -r -g "$APK"

@@ -4,6 +4,7 @@ open_tab() { adb shell am start -W -n $PKG/.MainActivity --es tab "$1" >/dev/nul
 # Dark mode, like the phone this is built for.
 adb shell cmd uimode night yes
 sleep 2
+demo_bar
 
 open_tab home
 shot 01_home_empty 3
@@ -97,6 +98,7 @@ scroll_up
 # Light mode recreates the screen; every setting must survive that.
 adb shell cmd uimode night no
 sleep 3
+demo_bar
 open_tab home
 shot 14_home_light 2
 open_tab alerts

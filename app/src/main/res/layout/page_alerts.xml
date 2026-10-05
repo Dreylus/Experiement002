@@ -134,6 +134,6 @@
             android:gravity="center"
             android:paddingStart="32dp"
             android:paddingEnd="32dp"
-            android:text="Do Not Disturb hides banners and silences your custom sound. Everything stays on this phone." />
+            android:text="Do Not Disturb hides banners and silences your custom sound. On Android 15 and newer, if banners or sounds fade during quick bursts, turn off Settings › Notifications › Notification cooldown. Everything stays on this phone." />
     </LinearLayout>
 </androidx.core.widget.NestedScrollView>
