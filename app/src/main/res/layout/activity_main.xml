@@ -159,7 +159,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="6dp"
-                    android:text="Tip: tap \"Test in 5 s\", then go to your home screen or another app to see the pop-up banner." />
+                    android:text="Tip: tap &quot;Test in 5 s&quot;, then go to your home screen or another app to see the pop-up banner." />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
