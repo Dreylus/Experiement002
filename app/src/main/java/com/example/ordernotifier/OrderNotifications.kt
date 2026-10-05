@@ -14,6 +14,8 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.app.Person
 import androidx.core.content.ContextCompat
+import androidx.core.content.pm.ShortcutInfoCompat
+import androidx.core.content.pm.ShortcutManagerCompat
 import androidx.core.graphics.drawable.IconCompat
 import java.util.Locale
 import kotlin.random.Random
@@ -22,6 +24,7 @@ object OrderNotifications {
     private const val CHANNEL_ALERT = "orders_alert"
     private const val CHANNEL_QUIET = "orders_quiet"
     const val CHANNEL_SERVICE = "service"
+    private const val SHORTCUT_ID = "store"
 
     /** Both order channels are HIGH importance so Android pops them up as a banner. */
     fun orderChannelId(s: Settings) =
@@ -58,9 +61,11 @@ object OrderNotifications {
         ContextCompat.checkSelfPermission(ctx, Manifest.permission.POST_NOTIFICATIONS) ==
             PackageManager.PERMISSION_GRANTED
 
-    fun formatText(s: Settings, price: Double, items: Int): String {
+    /** "$67.50, 2 items from Online Store" (the "from …" part is left out when [fromText] is blank). */
+    fun formatBody(currency: String, cents: Long, items: Int, fromText: String): String {
         val itemWord = if (items == 1) "item" else "items"
-        return String.format(Locale.US, "%s%.2f, %d %s from %s", s.currency, price, items, itemWord, s.storeName)
+        val base = String.format(Locale.US, "%s%,.2f, %d %s", currency, cents / 100.0, items, itemWord)
+        return if (fromText.isBlank()) base else "$base from ${fromText.trim()}"
     }
 
     /** Posts one fake order using the current settings. */
@@ -71,10 +76,10 @@ object OrderNotifications {
 
         val lo = minOf(s.minPrice, s.maxPrice)
         val hi = maxOf(s.minPrice, s.maxPrice)
-        val price = lo + Random.nextDouble() * (hi - lo)
+        val cents = Math.round((lo + Random.nextDouble() * (hi - lo)) * 100)
         val items = Random.nextInt(1, maxOf(1, s.maxItems) + 1)
-        val text = formatText(s, price, items)
-        val title = "Order #$number"
+        val text = formatBody(s.currency, cents, items, s.fromText)
+        val title = s.titlePrefix + number
         val icon = IconUtil.load(s)
 
         val open = PendingIntent.getActivity(
@@ -92,13 +97,15 @@ object OrderNotifications {
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .setAutoCancel(true)
 
-        if (s.singlePicture) {
-            // Chat-style: Android shows the sender's picture once, big, on the left.
+        if (s.singlePicture && publishStoreShortcut(ctx, s, icon)) {
+            // Chat-style conversation: Android shows the picture once, big, on the left
+            // (with a tiny app badge). This needs a conversation shortcut, like messaging apps use.
             val me = Person.Builder().setName("Me").build()
             val sender = Person.Builder()
                 .setName(title)
                 .setIcon(IconCompat.createWithBitmap(icon))
                 .build()
+            b.setShortcutId(SHORTCUT_ID)
             b.setStyle(
                 NotificationCompat.MessagingStyle(me)
                     .addMessage(text, System.currentTimeMillis(), sender)
@@ -108,6 +115,29 @@ object OrderNotifications {
         }
 
         NotificationManagerCompat.from(ctx).notify("order", number, b.build())
+        s.logOrder(LoggedOrder(number, title, cents, items, System.currentTimeMillis()))
         NotificationSound.play(ctx, s)
+    }
+
+    /** Creates/updates the "store" conversation shortcut. Returns false if the system refused it. */
+    private fun publishStoreShortcut(ctx: Context, s: Settings, icon: android.graphics.Bitmap): Boolean = try {
+        val iconCompat = IconCompat.createWithBitmap(icon)
+        val store = Person.Builder()
+            .setName(s.storeName)
+            .setIcon(iconCompat)
+            .setKey(SHORTCUT_ID)
+            .setImportant(true)
+            .build()
+        val shortcut = ShortcutInfoCompat.Builder(ctx, SHORTCUT_ID)
+            .setLongLived(true)
+            .setShortLabel(s.storeName)
+            .setIcon(iconCompat)
+            .setPerson(store)
+            .setIntent(Intent(ctx, MainActivity::class.java).setAction(Intent.ACTION_VIEW))
+            .build()
+        ShortcutManagerCompat.pushDynamicShortcut(ctx, shortcut)
+        true
+    } catch (e: Exception) {
+        false
     }
 }

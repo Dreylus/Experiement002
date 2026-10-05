@@ -11,9 +11,14 @@
         <item name="cornerSize">28%</item>
     </style>
 
-    <style name="SectionTitle">
+    <!-- Section titles above groups of rows, like the settings pages in big social apps. -->
+    <style name="SectionHeader">
         <item name="android:textAppearance">?attr/textAppearanceTitleSmall</item>
         <item name="android:textColor">?attr/colorPrimary</item>
+        <item name="android:paddingStart">20dp</item>
+        <item name="android:paddingEnd">20dp</item>
+        <item name="android:paddingTop">24dp</item>
+        <item name="android:paddingBottom">8dp</item>
     </style>
 
     <style name="FieldLabel">
@@ -21,7 +26,36 @@
         <item name="android:textColor">?attr/colorOnSurface</item>
     </style>
 
+    <style name="FieldValue">
+        <item name="android:textAppearance">?attr/textAppearanceTitleSmall</item>
+        <item name="android:textColor">?attr/colorPrimary</item>
+    </style>
+
     <style name="Hint">
+        <item name="android:textAppearance">?attr/textAppearanceBodySmall</item>
+        <item name="android:textColor">?attr/colorOnSurfaceVariant</item>
+    </style>
+
+    <!-- Instagram-style stats row on the Home tab. -->
+    <style name="StatCell">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:gravity">center_horizontal</item>
+        <item name="android:orientation">vertical</item>
+    </style>
+
+    <style name="StatNumber">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textAppearance">?attr/textAppearanceTitleLarge</item>
+        <item name="android:textColor">?attr/colorOnSurface</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="StatLabel">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
         <item name="android:textAppearance">?attr/textAppearanceBodySmall</item>
         <item name="android:textColor">?attr/colorOnSurfaceVariant</item>
     </style>
