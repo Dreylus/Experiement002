@@ -8,6 +8,10 @@ device it's installed on.
 | --- | --- | --- | --- |
 | ![Home](docs/screenshots/08_home_orders.png) | ![Customize](docs/screenshots/03_customize.png) | ![Timing](docs/screenshots/11_timing.png) | ![Alerts](docs/screenshots/12_alerts.png) |
 
+| Editing the "from" text | Pop-up banner | Notification shade |
+| --- | --- | --- |
+| ![Editor](docs/screenshots/02_edit_from_text.png) | ![Banner](docs/screenshots/07_heads_up.png) | ![Shade](docs/screenshots/06_notification_expanded.png) |
+
 ## What's in it
 
 - **Home**: your store's picture with a "live" ring while orders are on, today's orders and

@@ -3,6 +3,7 @@ name: UI screenshots
 # commits real screenshots to docs/screenshots (used to check the UI and in the README).
 on:
   push:
+    branches-ignore: [main, master]  # never commits screenshots straight to main
   workflow_dispatch:
 concurrency:
   group: ui-screenshots-${{ github.ref }}

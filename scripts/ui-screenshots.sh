@@ -14,17 +14,25 @@ shot() { # name [delay-seconds]
 }
 
 # Tap the centre of the view with the given resource id (first match).
+# The UI dump is retried because uiautomator sometimes returns nothing on its first call.
 tap_id() {
-  adb shell uiautomator dump /sdcard/ui.xml >/dev/null 2>&1
-  adb pull /sdcard/ui.xml /tmp/ui.xml >/dev/null 2>&1
-  local xy
-  xy=$(python3 - "$1" <<'PY'
+  local xy="" try
+  for try in 1 2 3 4; do
+    rm -f /tmp/ui.xml
+    adb shell uiautomator dump /sdcard/ui.xml >/dev/null 2>&1
+    adb pull /sdcard/ui.xml /tmp/ui.xml >/dev/null 2>&1
+    if [ -f /tmp/ui.xml ]; then
+      xy=$(python3 - "$1" <<'PY'
 import re, sys
 x = open('/tmp/ui.xml', encoding='utf-8').read()
 m = re.search(r'resource-id="[^"]*:id/%s"[^>]*bounds="\[(\d+),(\d+)\]\[(\d+),(\d+)\]"' % sys.argv[1], x)
 print('' if not m else '%d %d' % ((int(m.group(1)) + int(m.group(3))) // 2, (int(m.group(2)) + int(m.group(4))) // 2))
 PY
 )
+    fi
+    [ -n "$xy" ] && break
+    sleep 1
+  done
   if [ -n "$xy" ]; then adb shell input tap $xy; echo "tapped $1 at $xy"; else echo "NOT FOUND: $1"; fi
 }
 
