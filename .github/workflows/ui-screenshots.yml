@@ -1,0 +1,64 @@
+name: UI screenshots
+# Builds the app, runs it on an Android emulator, taps through the screens and
+# commits real screenshots to docs/screenshots (used to check the UI and in the README).
+on:
+  push:
+  workflow_dispatch:
+concurrency:
+  group: ui-screenshots-${{ github.ref }}
+  cancel-in-progress: true
+permissions:
+  contents: write
+jobs:
+  screenshots:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: 17 }
+      - uses: gradle/actions/setup-gradle@v4
+        with: { gradle-version: "8.9" }
+      - run: gradle assembleDebug
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Run on emulator and take screenshots
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          target: google_apis
+          arch: x86_64
+          profile: pixel_6
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          script: bash scripts/ui-screenshots.sh
+      - name: Shrink screenshots
+        if: always()
+        run: |
+          pip install --quiet pillow
+          python3 - <<'PY'
+          import glob
+          from PIL import Image
+          for f in glob.glob('docs/screenshots/*.png'):
+              im = Image.open(f).convert('RGB')
+              w, h = im.size
+              if w > 600:
+                  im = im.resize((600, round(h * 600 / w)), Image.LANCZOS)
+              im.save(f, optimize=True)
+          PY
+      - name: Commit screenshots
+        if: always()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A docs/screenshots
+          if git diff --cached --quiet; then echo "No screenshot changes"; exit 0; fi
+          git commit -m "Update UI screenshots [skip ci]"
+          for i in 1 2 3; do
+            git pull --rebase origin "$GITHUB_REF_NAME" && git push origin "HEAD:$GITHUB_REF_NAME" && break
+            sleep 5
+          done
