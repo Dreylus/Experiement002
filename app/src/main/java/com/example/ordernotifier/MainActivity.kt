@@ -312,7 +312,8 @@ class MainActivity : AppCompatActivity() {
                 .putExtra(android.provider.Settings.EXTRA_CHANNEL_ID, OrderNotifications.orderChannelId(s))
         } else {
             Intent(android.provider.Settings.ACTION_APP_NOTIFICATION_SETTINGS)
-        }.putExtra(android.provider.Settings.EXTRA_APP_PACKAGE, packageName)
+        }
+        intent.putExtra(android.provider.Settings.EXTRA_APP_PACKAGE, packageName)
         try {
             startActivity(intent)
         } catch (_: Exception) {
