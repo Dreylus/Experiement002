@@ -661,7 +661,7 @@ class MainActivity : AppCompatActivity() {
             s.sound = on
             refreshAlerts()
         }
-        switchRow(R.id.rowHideBadge, R.drawable.ic_image, "Hide app icon") { on -> s.hideBadge = on }
+        switchRow(R.id.rowHideBadge, R.drawable.ic_image, "Yellow bell badge") { on -> s.hideBadge = on }
         switchRow(R.id.rowSinglePicture, R.drawable.ic_chat, "One picture only") { on ->
             s.singlePicture = on
             refreshPreviews()
@@ -691,7 +691,7 @@ class MainActivity : AppCompatActivity() {
             enabled = !custom
         )
         setSwitch(R.id.rowSinglePicture, s.singlePicture, "Chat style: your picture shows once, on the left")
-        setSwitch(R.id.rowHideBadge, s.hideBadge, "No app icon badge on notifications, only your picture")
+        setSwitch(R.id.rowHideBadge, s.hideBadge, "A small yellow bell instead of the app icon on notifications")
         setSwitch(R.id.rowKeepAwake, s.keepAwake, "Steadier timing when the phone is locked. Uses more battery.")
         refreshStatus()
     }

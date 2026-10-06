@@ -25,6 +25,7 @@ object OrderNotifications {
     private const val CHANNEL_QUIET = "orders_quiet"
     const val CHANNEL_SERVICE = "service"
     private const val SHORTCUT_ID = "store"
+    private const val BELL_YELLOW = 0xFFFBBC04.toInt()
 
     /** Both order channels are HIGH importance so Android pops them up as a banner. */
     fun orderChannelId(s: Settings) =
@@ -87,8 +88,9 @@ object OrderNotifications {
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )
         val b = NotificationCompat.Builder(ctx, orderChannelId(s))
-            // Android always draws the small icon as a badge; a transparent one leaves nothing to see.
-            .setSmallIcon(if (s.hideBadge) R.drawable.ic_blank else R.drawable.ic_notification)
+            // Android always draws the small icon as a badge: show a simple yellow bell there.
+            .setSmallIcon(if (s.hideBadge) R.drawable.ic_bell_badge else R.drawable.ic_notification)
+            .setColor(if (s.hideBadge) BELL_YELLOW else 0)
             .setContentTitle(title)
             .setContentText(text)
             .setSubText(s.storeName)
