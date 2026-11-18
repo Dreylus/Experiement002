@@ -206,7 +206,11 @@ final class AppModel {
         planned.append(order)
         saveQueue()
         await schedule(order)
-        if wasRunning { await fill() }
+        guard wasRunning else { return }
+        // iOS works through the refilled queue before showing an alert that is due now,
+        // so let the test banner appear first.
+        if delay < 2 { try? await Task.sleep(for: .seconds(1.5)) }
+        await fill()
     }
 
     func resetStats() {

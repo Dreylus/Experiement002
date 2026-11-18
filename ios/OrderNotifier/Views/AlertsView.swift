@@ -73,16 +73,20 @@ struct AlertsView: View {
                 }
 
                 Section("Tips") {
-                    TipRow(symbol: "moon.fill", color: .indigo, title: "Focus and Do Not Disturb",
-                           text: "They silence these alerts and your custom sound, like any other app.")
-                    TipRow(symbol: "clock.badge.exclamationmark.fill", color: .orange, title: "Scheduled Summary",
-                           text: "Keep this app on Immediate Delivery so orders pop up right away.")
-                    TipRow(symbol: "square.stack.3d.up.fill", color: .blue, title: "Stacks",
-                           text: "Orders group into one stack on the Lock Screen, like a real store app.")
-                    TipRow(symbol: "wand.and.stars", color: .pink, title: "Siri and Shortcuts",
-                           text: "Say “Go live in \(model.appName)”, put Go Live on the Action Button, or make a Shortcuts automation that starts orders every morning.")
-                    TipRow(symbol: "lock.shield.fill", color: .green, title: "Private",
-                           text: "Nothing leaves this iPhone. No account, no server.")
+                    // One cell: separate cells left a hairline gap on iOS 26.
+                    VStack(alignment: .leading, spacing: 18) {
+                        TipRow(symbol: "moon.fill", color: .indigo, title: "Focus and Do Not Disturb",
+                               text: "They silence these alerts and your custom sound, like any other app.")
+                        TipRow(symbol: "clock.badge.exclamationmark.fill", color: .orange, title: "Scheduled Summary",
+                               text: "Keep this app on Immediate Delivery so orders pop up right away.")
+                        TipRow(symbol: "square.stack.3d.up.fill", color: .blue, title: "Stacks",
+                               text: "Orders group into one stack on the Lock Screen, like a real store app.")
+                        TipRow(symbol: "wand.and.stars", color: .pink, title: "Siri and Shortcuts",
+                               text: "Say “Go live in \(model.appName)”, put Go Live on the Action Button, or make a Shortcuts automation that starts orders every morning.")
+                        TipRow(symbol: "lock.shield.fill", color: .green, title: "Private",
+                               text: "Nothing leaves this iPhone. No account, no server.")
+                    }
+                    .padding(.vertical, 8)
                 }
 
                 Section {
@@ -193,7 +197,5 @@ private struct TipRow: View {
                     .foregroundStyle(.secondary)
             }
         }
-        .padding(.vertical, 4)
-        .listRowSeparator(.hidden)
     }
 }
