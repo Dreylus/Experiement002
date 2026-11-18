@@ -1,0 +1,122 @@
+name: iOS
+# Builds the iPhone app (ios/) as an unsigned IPA to install with Sideloadly, and on work
+# branches runs it on a simulator to commit real screenshots to docs/ios-screenshots.
+on:
+  push:
+    paths:
+      - "ios/**"
+      - ".github/workflows/ios.yml"
+  workflow_dispatch:
+concurrency:
+  group: ios-${{ github.ref }}
+  cancel-in-progress: true
+permissions:
+  contents: write
+env:
+  HOMEBREW_NO_AUTO_UPDATE: "1"
+  HOMEBREW_NO_INSTALL_CLEANUP: "1"
+jobs:
+  ipa:
+    name: IPA for Sideloadly
+    runs-on: macos-26
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - name: Install XcodeGen and Pillow
+        run: |
+          brew install xcodegen
+          python -m pip install --quiet pillow pillow-heif
+      - name: Generate the Xcode project
+        working-directory: ios
+        run: |
+          xcodebuild -version
+          python scripts/prepare_branding.py
+          xcodegen generate
+      - name: Build (unsigned; Sideloadly signs it with your Apple ID)
+        working-directory: ios
+        run: |
+          xcodebuild build -project OrderNotifier.xcodeproj -scheme OrderNotifier -configuration Release \
+            -sdk iphoneos -destination 'generic/platform=iOS' -derivedDataPath build/device \
+            CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" \
+            CURRENT_PROJECT_VERSION=${{ github.run_number }} -quiet
+      - name: Package the IPA
+        working-directory: ios
+        run: |
+          rm -rf dist && mkdir -p dist/Payload
+          cp -R build/device/Build/Products/Release-iphoneos/OrderNotifier.app dist/Payload/
+          (cd dist && zip -qry OrderNotifier.ipa Payload)
+          ls -lh dist/OrderNotifier.ipa
+          plutil -p dist/Payload/OrderNotifier.app/Info.plist
+      - uses: actions/upload-artifact@v4
+        with:
+          name: OrderNotifier-iOS
+          path: ios/dist/OrderNotifier.ipa
+          if-no-files-found: error
+
+  screenshots:
+    name: Simulator screenshots
+    if: github.ref_name != 'main' && github.ref_name != 'master'  # never commits straight to main
+    runs-on: macos-26
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - name: Install XcodeGen and Pillow
+        run: |
+          brew install xcodegen
+          python -m pip install --quiet pillow pillow-heif
+      - name: Generate the Xcode project
+        working-directory: ios
+        run: |
+          python scripts/prepare_branding.py
+          xcodegen generate
+      - name: Boot an iPhone simulator
+        run: |
+          UDID=$(xcrun simctl list devices available -j | python ios/scripts/pick_simulator.py)
+          echo "UDID=$UDID" >> "$GITHUB_ENV"
+          xcrun simctl boot "$UDID"
+          xcrun simctl bootstatus "$UDID" -b
+          xcrun simctl status_bar "$UDID" override --time "9:41" --dataNetwork wifi --wifiMode active \
+            --wifiBars 3 --cellularMode active --cellularBars 4 --batteryState charged --batteryLevel 100
+      - name: Build for testing
+        working-directory: ios
+        run: |
+          xcodebuild build-for-testing -project OrderNotifier.xcodeproj -scheme OrderNotifier \
+            -destination "id=$UDID" -derivedDataPath build/sim -quiet
+      - name: Screenshots (dark)
+        working-directory: ios
+        run: |
+          xcrun simctl ui "$UDID" appearance dark
+          TEST_RUNNER_SCREENSHOT_DIR="$RUNNER_TEMP/shots/dark" \
+          xcodebuild test-without-building -project OrderNotifier.xcodeproj -scheme OrderNotifier \
+            -destination "id=$UDID" -derivedDataPath build/sim -resultBundlePath build/dark.xcresult
+      - name: Screenshots (light)
+        if: always()
+        working-directory: ios
+        run: |
+          xcrun simctl ui "$UDID" appearance light
+          TEST_RUNNER_SCREENSHOT_DIR="$RUNNER_TEMP/shots/light" \
+          xcodebuild test-without-building -project OrderNotifier.xcodeproj -scheme OrderNotifier \
+            -destination "id=$UDID" -derivedDataPath build/sim -resultBundlePath build/light.xcresult
+      - name: Collect screenshots
+        if: always()
+        run: |
+          for mode in dark light; do
+            python ios/scripts/collect_screenshots.py "$RUNNER_TEMP/shots/$mode" "ios/build/$mode.xcresult" "docs/ios-screenshots/$mode"
+          done
+      - name: Commit screenshots
+        if: always() && github.event_name == 'push'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          mkdir -p docs/ios-screenshots
+          git add -A docs/ios-screenshots
+          if git diff --cached --quiet; then echo "No screenshot changes"; exit 0; fi
+          git commit -m "Update iOS screenshots [skip ci]"
+          for i in 1 2 3; do
+            git pull --rebase origin "$GITHUB_REF_NAME" && git push origin "HEAD:$GITHUB_REF_NAME" && break
+            sleep 5
+          done

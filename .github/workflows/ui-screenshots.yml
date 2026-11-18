@@ -4,6 +4,10 @@ name: UI screenshots
 on:
   push:
     branches-ignore: [main, master]  # never commits screenshots straight to main
+    paths-ignore:  # the iPhone app has its own workflow (ios.yml)
+      - "ios/**"
+      - "docs/ios-screenshots/**"
+      - ".github/workflows/ios.yml"
   workflow_dispatch:
 concurrency:
   group: ui-screenshots-${{ github.ref }}

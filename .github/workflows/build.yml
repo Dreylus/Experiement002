@@ -1,6 +1,10 @@
 name: Build APK
 on:
   push:
+    paths-ignore:  # the iPhone app has its own workflow (ios.yml)
+      - "ios/**"
+      - "docs/ios-screenshots/**"
+      - ".github/workflows/ios.yml"
   workflow_dispatch:
 jobs:
   build:
