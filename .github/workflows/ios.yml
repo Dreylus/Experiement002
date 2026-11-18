@@ -97,7 +97,7 @@ jobs:
           xcodebuild test-without-building -project OrderNotifier.xcodeproj -scheme OrderNotifier \
             -destination "id=$UDID" -derivedDataPath build/sim -resultBundlePath build/dark.xcresult
       - name: Screenshots (light)
-        if: always()
+        if: ${{ !cancelled() }}
         working-directory: ios
         run: |
           xcrun simctl ui "$UDID" appearance light
@@ -105,13 +105,13 @@ jobs:
           xcodebuild test-without-building -project OrderNotifier.xcodeproj -scheme OrderNotifier \
             -destination "id=$UDID" -derivedDataPath build/sim -resultBundlePath build/light.xcresult
       - name: Collect screenshots
-        if: always()
+        if: ${{ !cancelled() }}
         run: |
           for mode in dark light; do
             python ios/scripts/collect_screenshots.py "$RUNNER_TEMP/shots/$mode" "ios/build/$mode.xcresult" "docs/ios-screenshots/$mode"
           done
       - name: Commit screenshots
-        if: always() && github.event_name == 'push'
+        if: ${{ !cancelled() && github.event_name == 'push' }}  # a cancelled run must not commit a partial set
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"

@@ -62,17 +62,20 @@ Action Button and Shortcuts automations (for example: go live every weekday at 9
    enter your Apple ID and press Start.
 3. On the iPhone: Settings → General → VPN & Device Management → trust your Apple ID, and turn on
    Settings → Privacy & Security → Developer Mode (the phone restarts).
-4. Open **Store**, tap Continue and allow notifications.
+4. Open the app, tap Continue and allow notifications.
 
 With a free Apple ID the app stops opening after 7 days: install the same IPA again with Sideloadly
 (your settings and stats stay). Sideloadly can also refresh it automatically over Wi-Fi.
 
 ### Your own name and picture
 
-iPhone always shows the app's own icon and name on its alerts, so they are part of the build:
+iPhone always shows the app's own icon and name on its alerts, so they are part of the build.
+Right now they are the Shopify logo and name, for testing; the grey blank slate, a yellow bell and
+graphite are alternate icons you can switch to in the app.
 
 - **Picture**: replace `ios/Branding/AppIcon.png` (PNG, JPG or HEIC, any size; cropped to a square).
-- **Name**: change `"appName"` in `ios/Branding/branding.json`.
+- **Name**: change `"appName"` in `ios/Branding/branding.json`, or type a new one in Sideloadly's
+  Advanced Options when you install (no new build needed for that).
 - **More pictures** to switch between in the app (Customize → App icon): add them to
   `ios/Branding/Icons/`. The file name becomes the title.
 

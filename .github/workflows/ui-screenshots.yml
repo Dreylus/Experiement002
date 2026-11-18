@@ -42,7 +42,7 @@ jobs:
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
           script: bash scripts/ui-screenshots.sh
       - name: Shrink screenshots
-        if: always()
+        if: ${{ !cancelled() }}
         run: |
           pip install --quiet pillow
           python3 - <<'PY'
@@ -56,7 +56,7 @@ jobs:
               im.save(f, optimize=True)
           PY
       - name: Commit screenshots
-        if: always()
+        if: ${{ !cancelled() }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
