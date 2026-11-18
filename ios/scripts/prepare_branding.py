@@ -135,6 +135,7 @@ def write_info_plist(name):
         "UIApplicationSceneManifest": {"UIApplicationSupportsMultipleScenes": False},
         "UIApplicationSupportsIndirectInputEvents": True,
         "UILaunchScreen": {},
+        "UIRequiresFullScreen": True,
         "UIRequiredDeviceCapabilities": ["arm64"],
         "UISupportedInterfaceOrientations": ["UIInterfaceOrientationPortrait"],
     }

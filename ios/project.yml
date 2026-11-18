@@ -13,7 +13,6 @@ settings:
     MARKETING_VERSION: "2.0"
     CURRENT_PROJECT_VERSION: "1"
     IPHONEOS_DEPLOYMENT_TARGET: "17.0"
-    TARGETED_DEVICE_FAMILY: "1"
 targets:
   OrderNotifier:
     type: application
@@ -25,6 +24,7 @@ targets:
         # Sideloadly re-signs the app with your Apple ID and can change this if it's taken.
         PRODUCT_BUNDLE_IDENTIFIER: app.ordernotifier.store.k7q2
         PRODUCT_NAME: OrderNotifier
+        TARGETED_DEVICE_FAMILY: "1"  # iPhone only
         INFOPLIST_FILE: Support/Info.plist
         GENERATE_INFOPLIST_FILE: NO
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
@@ -47,4 +47,5 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: app.ordernotifier.store.k7q2.uitests
         GENERATE_INFOPLIST_FILE: YES
         TEST_TARGET_NAME: OrderNotifier
+        TARGETED_DEVICE_FAMILY: "1"
         SWIFT_STRICT_CONCURRENCY: minimal

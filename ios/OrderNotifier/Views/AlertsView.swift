@@ -79,6 +79,8 @@ struct AlertsView: View {
                            text: "Keep this app on Immediate Delivery so orders pop up right away.")
                     TipRow(symbol: "square.stack.3d.up.fill", color: .blue, title: "Stacks",
                            text: "Orders group into one stack on the Lock Screen, like a real store app.")
+                    TipRow(symbol: "wand.and.stars", color: .pink, title: "Siri and Shortcuts",
+                           text: "Say “Go live in \(model.appName)”, put Go Live on the Action Button, or make a Shortcuts automation that starts orders every morning.")
                     TipRow(symbol: "lock.shield.fill", color: .green, title: "Private",
                            text: "Nothing leaves this iPhone. No account, no server.")
                 }

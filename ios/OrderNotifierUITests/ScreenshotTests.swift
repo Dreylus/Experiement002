@@ -27,6 +27,11 @@ final class ScreenshotTests: XCTestCase {
         pause(1.5)
         snap("02-home")
 
+        // Slow timing first, so only the test orders pop up while the screenshots are taken.
+        openTab("Timing")
+        tapIfExists(app.buttons["preset.Chill"])
+        openTab("Home")
+
         // Go live, then a few test orders: the first one is caught as an in-app banner.
         goLive.tap()
         pause(2)
@@ -73,11 +78,10 @@ final class ScreenshotTests: XCTestCase {
 
         openTab("Timing")
         snap("11-timing")
-        let viral = app.buttons["preset.Viral"]
-        if viral.waitForExistence(timeout: 3) {
-            viral.tap()
+        if tapIfExists(app.buttons["preset.Viral"]) {
             pause(1.5)
             snap("12-timing-viral")
+            tapIfExists(app.buttons["preset.Chill"])
         }
         app.swipeUp()
         pause(1.2)
@@ -92,6 +96,14 @@ final class ScreenshotTests: XCTestCase {
     }
 
     // MARK: - Helpers
+
+    @discardableResult
+    private func tapIfExists(_ element: XCUIElement) -> Bool {
+        guard element.waitForExistence(timeout: 4) else { return false }
+        element.tap()
+        pause(0.8)
+        return true
+    }
 
     private func allowNotificationsIfAsked() {
         for label in ["Allow", "Allow Notifications"] {

@@ -73,19 +73,22 @@ jobs:
         run: |
           python scripts/prepare_branding.py
           xcodegen generate
-      - name: Boot an iPhone simulator
+      - name: Start an iPhone simulator
         run: |
           UDID=$(xcrun simctl list devices available -j | python ios/scripts/pick_simulator.py)
           echo "UDID=$UDID" >> "$GITHUB_ENV"
-          xcrun simctl boot "$UDID"
-          xcrun simctl bootstatus "$UDID" -b
-          xcrun simctl status_bar "$UDID" override --time "9:41" --dataNetwork wifi --wifiMode active \
-            --wifiBars 3 --cellularMode active --cellularBars 4 --batteryState charged --batteryLevel 100
+          xcrun simctl boot "$UDID"  # finishes booting while the app builds
       - name: Build for testing
         working-directory: ios
         run: |
           xcodebuild build-for-testing -project OrderNotifier.xcodeproj -scheme OrderNotifier \
             -destination "id=$UDID" -derivedDataPath build/sim -quiet
+      - name: Wait for the simulator
+        timeout-minutes: 20
+        run: |
+          xcrun simctl bootstatus "$UDID"
+          xcrun simctl status_bar "$UDID" override --time "9:41" --dataNetwork wifi --wifiMode active \
+            --wifiBars 3 --cellularMode active --cellularBars 4 --batteryState charged --batteryLevel 100
       - name: Screenshots (dark)
         working-directory: ios
         run: |
