@@ -29,6 +29,20 @@ private struct PresetChips: View {
     @Environment(AppModel.self) private var model
 
     var body: some View {
+        ScrollViewReader { proxy in
+            chips
+                .onAppear { reveal(model.activePreset, with: proxy, animated: false) }
+                .onChange(of: model.activePreset) { _, preset in reveal(preset, with: proxy, animated: true) }
+        }
+    }
+
+    /// Keeps the selected preset in view, since the row is wider than the screen.
+    private func reveal(_ preset: TimingPreset?, with proxy: ScrollViewProxy, animated: Bool) {
+        guard let preset else { return }
+        withAnimation(animated ? .snappy : nil) { proxy.scrollTo(preset.id, anchor: .center) }
+    }
+
+    private var chips: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             GlassGroup(spacing: 8) {
                 HStack(spacing: 8) {
@@ -42,6 +56,7 @@ private struct PresetChips: View {
                                 .padding(.horizontal, 4)
                         }
                         .modifier(ChipStyle(active: active))
+                        .id(preset.id)
                         .accessibilityIdentifier("preset.\(preset.title)")
                         .accessibilityAddTraits(active ? .isSelected : [])
                         .sensoryFeedback(.selection, trigger: active)

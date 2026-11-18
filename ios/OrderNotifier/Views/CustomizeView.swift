@@ -56,7 +56,7 @@ struct CustomizeView: View {
                 } header: {
                     Text("App icon and name")
                 } footer: {
-                    Text("iPhone shows the app's icon and name on every alert. To use your own picture or name, replace ios/Branding/AppIcon.png or edit ios/Branding/branding.json on GitHub, then install the new build. Pictures you add to ios/Branding/Icons appear here to switch between.")
+                    Text("iPhone shows the app's icon and name on every alert. To use your own picture or name, replace ios/Branding/AppIcon.png or edit ios/Branding/branding.json on GitHub, then install the new build. You can also rename the app in Sideloadly's Advanced Options when you install. Pictures you add to ios/Branding/Icons appear here to switch between.")
                 }
             }
             .scrollContentBackground(.hidden)
@@ -159,6 +159,11 @@ private struct IconPicker: View {
                             iconImage(option.preview)
                                 .frame(width: 60, height: 60)
                                 .clipShape(RoundedRectangle(cornerRadius: 13.4, style: .continuous))
+                                .overlay {
+                                    // Hairline so dark icons stay visible on dark rows.
+                                    RoundedRectangle(cornerRadius: 13.4, style: .continuous)
+                                        .strokeBorder(Color.primary.opacity(0.15), lineWidth: 0.5)
+                                }
                                 .overlay {
                                     RoundedRectangle(cornerRadius: 17, style: .continuous)
                                         .strokeBorder(selected ? Color.accentColor : .clear, lineWidth: 2.5)

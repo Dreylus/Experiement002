@@ -43,7 +43,7 @@ struct RootView: View {
                 Tab("Home", systemImage: "house.fill", value: AppTab.home) { HomeView() }
                 Tab("Customize", systemImage: "paintbrush.pointed.fill", value: AppTab.customize) { CustomizeView() }
                 Tab("Timing", systemImage: "timer", value: AppTab.timing) { TimingView() }
-                Tab("Alerts", systemImage: "bell.badge.fill", value: AppTab.alerts) { AlertsView() }
+                Tab("Alerts", systemImage: "bell.fill", value: AppTab.alerts) { AlertsView() }
                     .badge(model.health.problems.count)
             }
             .modifier(LiquidTabBar(tab: $tab))
@@ -59,7 +59,7 @@ struct RootView: View {
                     .tabItem { Label("Timing", systemImage: "timer") }
                     .tag(AppTab.timing)
                 AlertsView()
-                    .tabItem { Label("Alerts", systemImage: "bell.badge.fill") }
+                    .tabItem { Label("Alerts", systemImage: "bell.fill") }
                     .tag(AppTab.alerts)
                     .badge(model.health.problems.count)
             }

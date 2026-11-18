@@ -192,6 +192,7 @@ private struct TipRow: View {
                     .font(.footnote)
                     .foregroundStyle(.secondary)
             }
+            .alignmentGuide(.listRowSeparatorLeading) { $0[.leading] }
         }
         .padding(.vertical, 2)
     }
