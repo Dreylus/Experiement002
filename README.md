@@ -92,3 +92,8 @@ new IPA over the old one. Texts, prices, timing and sound are changed inside the
 - Custom sounds (MP3, M4A, WAV, AIFF, CAF) are converted to an iPhone alert sound and cut to 29
   seconds. Focus and Do Not Disturb silence them like any other app.
 - No separate small badge: the app icon *is* the picture on every alert.
+
+### iPhone screenshots
+
+`docs/ios-screenshots` (dark and light) is refreshed automatically by the **iOS** workflow, which runs
+an XCUITest tour of the app on an iPhone simulator (`ios/OrderNotifierUITests/ScreenshotTests.swift`).
