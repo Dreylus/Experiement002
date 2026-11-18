@@ -50,9 +50,9 @@ Action Button and Shortcuts automations (for example: go live every weekday at 9
 | --- | --- | --- | --- |
 | ![Home](docs/ios-screenshots/dark/04-home-live.png) | ![Customize](docs/ios-screenshots/dark/08-customize.png) | ![Timing](docs/ios-screenshots/dark/11-timing.png) | ![Alerts](docs/ios-screenshots/dark/14-alerts.png) |
 
-| Banner over the Home Screen | Notification Center | Light mode |
+| Banner over the Home Screen | Notification Center | Banner in the app (light mode) |
 | --- | --- | --- |
-| ![Banner](docs/ios-screenshots/dark/06-banner-home-screen.png) | ![Stack](docs/ios-screenshots/dark/07-notification-center.png) | ![Light](docs/ios-screenshots/light/04-home-live.png) |
+| ![Banner](docs/ios-screenshots/dark/06-banner-home-screen.png) | ![Stack](docs/ios-screenshots/dark/07-notification-center.png) | ![Light](docs/ios-screenshots/light/03-banner-in-app.png) |
 
 ### Install with Sideloadly
 
