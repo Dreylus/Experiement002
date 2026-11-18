@@ -33,19 +33,18 @@ final class ScreenshotTests: XCTestCase {
         openTab("Home")
 
         // Go live, then a few test orders: the first one is caught as an in-app banner.
+        // Going live hands 60 alerts to iOS first; a test order sent during that waits its turn.
         goLive.tap()
-        pause(2)
+        pause(6)
         let sendTest = app.buttons["home.sendTest"]
         sendTest.tap()
-        if waitForBanner(timeout: 10) { pause(0.7) }
+        pause(2.8) // banners take ~2 s to slide in on the CI simulator and stay ~5 s
         snap("03-banner-in-app")
         for _ in 0..<3 {
             sendTest.tap()
             pause(0.9)
         }
-        pause(2)
-        waitForBannersToLeave(timeout: 20)
-        pause(1)
+        pause(14) // the banners come and go
         snap("04-home-live")
         app.swipeUp()
         pause(1.2)
@@ -53,20 +52,18 @@ final class ScreenshotTests: XCTestCase {
         scrollToTop()
 
         // An order sliding in over the Home Screen.
+        pause(8) // let the refill after the last test order finish
         app.buttons["home.testDelayed"].tap()
         XCUIDevice.shared.press(.home)
-        pause(3)
-        if waitForBanner(timeout: 12) { pause(0.7) }
+        pause(6.5)
         snap("06-banner-home-screen")
 
-        // The stack in Notification Center (swipe down from the top left).
-        waitForBannersToLeave(timeout: 20)
-        for dx in [0.2, 0.35] where !notificationCenterOpen() {
-            let top = springboard.coordinate(withNormalizedOffset: CGVector(dx: dx, dy: 0))
-            let bottom = springboard.coordinate(withNormalizedOffset: CGVector(dx: dx, dy: 0.7))
-            top.press(forDuration: 0.05, thenDragTo: bottom, withVelocity: .fast, thenHoldForDuration: 0.1)
-            pause(2)
-        }
+        // The stack in Notification Center: swipe down from the top left once the banner is gone.
+        pause(7)
+        let top = springboard.coordinate(withNormalizedOffset: CGVector(dx: 0.2, dy: 0))
+        let bottom = springboard.coordinate(withNormalizedOffset: CGVector(dx: 0.2, dy: 0.7))
+        top.press(forDuration: 0.05, thenDragTo: bottom, withVelocity: .fast, thenHoldForDuration: 0.1)
+        pause(2)
         snap("07-notification-center")
         XCUIDevice.shared.press(.home)
         pause(1)
@@ -116,30 +113,6 @@ final class ScreenshotTests: XCTestCase {
     }
 
     // MARK: - Helpers
-
-    /// An order alert on screen: a banner, or a row in Notification Center.
-    private func orderAlertOnScreen() -> Bool {
-        let alert = springboard.descendants(matching: .any)
-            .matching(NSPredicate(format: "label CONTAINS %@", "Order #")).firstMatch
-        return alert.exists && alert.isHittable
-    }
-
-    @discardableResult
-    private func waitForBanner(timeout: TimeInterval) -> Bool {
-        let end = Date().addingTimeInterval(timeout)
-        while Date() < end {
-            if orderAlertOnScreen() { return true }
-            pause(0.3)
-        }
-        return false
-    }
-
-    private func waitForBannersToLeave(timeout: TimeInterval) {
-        let end = Date().addingTimeInterval(timeout)
-        while Date() < end, orderAlertOnScreen() { pause(0.5) }
-    }
-
-    private func notificationCenterOpen() -> Bool { orderAlertOnScreen() }
 
     /// The "You have changed the icon" alert's OK button, from the app or from the system.
     private func iconAlertOK() -> XCUIElement? {
